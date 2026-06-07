@@ -5,7 +5,7 @@
 
 int primo (long int n) {
 	int result = 1;
-	#pragma omp parallel for shared(result) schedule(dynamic, 10) num_threads(2)
+	#pragma omp parallel for shared(result) schedule(static, 10) num_threads(2)
 	for (long int i = 3; i < (long int)(sqrt(n) + 1); i+=2){
 	     if (n%i == 0) {
 	     	result = 0;
@@ -32,7 +32,20 @@ long int  n, total=0;
     
     t_inicio = omp_get_wtime();
     
-    #pragma omp parallel for reduction(+:total) schedule(dynamic, 10) num_threads(2)
+    // Debug: imprimir info de paralelismo
+    #pragma omp parallel num_threads(2)
+    {
+        if (omp_get_thread_num() == 0) {
+            printf("=== PARALELISMO DEBUG ===\n");
+            printf("Threads disponíveis (omp_get_num_procs()): %d\n", omp_get_num_procs());
+            printf("Max threads (omp_get_max_threads()): %d\n", omp_get_max_threads());
+            printf("Threads no loop externo: %d\n", omp_get_num_threads());
+            printf("Max active levels: %d\n", omp_get_max_active_levels());
+            printf("======================\n\n");
+        }
+    }
+    
+    #pragma omp parallel for reduction(+:total) schedule(static, 10) num_threads(2)
         for (long int i = 3; i <= n; i += 2) {
             if(primo(i) == 1) total++;
         }
@@ -43,4 +56,3 @@ long int  n, total=0;
     
     return(0);
 }
-

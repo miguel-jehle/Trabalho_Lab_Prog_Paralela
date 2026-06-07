@@ -5,7 +5,7 @@
 
 int primo (long int n) {
 	int result = 1;
-	#pragma omp parallel for shared(result) schedule(static, 10)
+	#pragma omp parallel for shared(result) schedule(static, 10) num_threads(2)
 	for (long int i = 3; i < (long int)(sqrt(n) + 1); i+=2){
 	     if (n%i == 0) {
 	     	result = 0;
@@ -18,6 +18,9 @@ int main(int argc, char *argv[]) { /* primos_seq.c  */
 double t_inicio, t_fim;
 long int  n, total=0;
 
+    omp_set_nested(1);
+    omp_set_max_active_levels(2);
+
     if (argc < 2) {
         printf("Valor inválido! Entre com o valor do maior inteiro\n");
        	return 0;
@@ -29,7 +32,7 @@ long int  n, total=0;
     
     t_inicio = omp_get_wtime();
     
-    #pragma omp parallel for reduction(+:total) schedule(dynamic, 10) num_threads(4)
+    #pragma omp parallel for reduction(+:total) schedule(dynamic, 10) num_threads(2)
         for (long int i = 3; i <= n; i += 2) {
             if(primo(i) == 1) total++;
         }
